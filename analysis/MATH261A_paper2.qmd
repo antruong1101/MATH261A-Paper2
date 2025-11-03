@@ -1,0 +1,29 @@
+---
+title: "Paper 2Title"
+author: "An Truong"
+thanks: "Project repository available at: [https://github.com/antruong1101/MATH261A-Paper2#](https://github.com/antruong1101/MATH261A-Paper2#)."
+editor: visual
+date: today
+date-format: long
+abstract: " "
+bibliography: ""
+format: 
+  pdf:
+    fig-pos: "H"
+    keep-tex: true
+    include-in-header: 
+       text: |
+         \usepackage{fvextra}
+         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+         \DefineVerbatimEnvironment{OutputCode}{Verbatim}{breaklines,commandchars=\\\{\}}
+---
+
+## Introduction 
+
+```{r, message = FALSE, warning = FALSE, echo=FALSE}
+# install libraries
+library(tidyverse)
+library(hms)
+library(usethis)
+use_git_config(user.name = "antruong1101", user.email = "an.truong8@gmail.com")
+```
