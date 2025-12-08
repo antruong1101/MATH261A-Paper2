@@ -1,5 +1,5 @@
 ---
-title: "Paper 2 Title"
+title: "Investing in Success: How Resource Allocation Decisions Affect User Satisfaction in Digital Games"
 author: "An Truong"
 thanks: "Project repository available at: [https://github.com/antruong1101/MATH261A-Paper2#](https://github.com/antruong1101/MATH261A-Paper2#)."
 editor: visual
@@ -56,9 +56,10 @@ head(vg_df)
 dim(vg_df)
 ```
 
-The bivariate relationships of the positive review percentages with the predictor values are shown below. From comparing the relationships of the Metacritic score and the counts for platform, DLC, language support, achievement counts along with price with positive review percentage, all relationships are positive. Although most of the relationships make sense, it is interesting that for the plot with price has a positive relationship since that indicates that as a game gets more expensive the more likely that it will receive greater user satisfaction compared to the cheaper games.
+The bivariate relationships of the positive review percentages with the predictor values are shown in [@fig-eda-scatter]. From comparing the relationships of the Metacritic score and the counts for platform, DLC, language support, achievement counts along with price with positive review percentage, all relationships are positive. Although most of the relationships make sense, it is interesting that for the plot with price has a positive relationship since that indicates that as a game gets more expensive the more likely that it will receive greater user satisfaction compared to the cheaper games.
 
-```{r eda-scatter, message = FALSE, warning = FALSE, echo=FALSE}
+```{r fig-eda-scatter, message = FALSE, warning = FALSE, echo=FALSE}
+#| fig-cap: 'Bivariate relationships between Steam user satisfaction and video game design features.The design features are shown to have positive linear relationships with percenntage of positive reviews.'
 vg_df$platform_count <- vg_df$Windows + vg_df$Mac + vg_df$Linux
 
 create_scatter <- function(data, x_var, y_var, x_label, title) {
@@ -136,7 +137,7 @@ p6 <- create_scatter(vg_df, 'Achievements', 'positive_review_per',
 # create title plot 
 title <- ggdraw() +
   draw_label('Bivariate Relationships: Predictors vs Response Variable',
-             fontface = 'bold', size = 16, hjust = 0.5)
+             fontface = 'bold', size = 14, hjust = 0.5)
 
 # arrange plots
 plot_panels <- plot_grid(p1, p2, p3, p4, p5, p6, 
@@ -153,6 +154,8 @@ combined_plot
 ```
 
 ## Methods
+
+The statistical methods analyses done in this paper using the R programming language.
 
 ```{r evaluation-function, message = FALSE, warning = FALSE, echo=FALSE}
 # evaluation function
@@ -181,7 +184,8 @@ eval_mod <- function(formula) {
 
 To better understand whether or not the listed game features are need in order to have positive user satisfaction on Steam, I compared three regression models which consist of the zero model with Metacritic score by itself, the full model with the listed features, and the model with features and interactions with Metacritic score. From these models, I calculated the RMSE, Adjusted $R^2$ value, AIC, and F-statistic values to compare model significance and complexity that is shown below. The RMSE for the full model is lower compared to the zero model indicating a better fit but when the interactions are added the RMSE doesn't decrease as much. Similar patterns are shared between the Adjusted $R^2$ value where the full model with interactions is slightly better than the full model with no interactions. AIC values shows that including the interactions with the full model actually increases it suggesting that it has too many parameters. Comparing the full model with the zero by AIC values show that the full model has a better balance of fit and complexity than it. As for the F-statistic, it is to note that the model significance is tested between an intercept only model, thus the zero model has the greatest model. Although a higher F-statistic hints better overall model significance, it doesn't mean the interaction model is worse. Thus it is better to compare the models with an ANOVA table instead of the F-statistic.
 
-```{r eval-mScore, message = FALSE, warning = FALSE, echo=FALSE}
+```{r fig-eval-mScore, message = FALSE, warning = FALSE, echo=FALSE}
+#| fig-cap: 'Evaluation metrics for hierachial models with Metacritic score as primary predictor.Models compared are Metacritic score only, added design features, added interactions between design features and Metacritic score.'
 set.seed(420)
 
 # get evaluation values from varying models: Metacritic Score
@@ -199,7 +203,8 @@ From using a nested anova table to conduct a hierarchical F-test shown below, th
 
 Adding design features significantly improved mode fit compared to the Metacritic score only model. This validates that resource allocation towards design decisions including pricing, DLC count, platform support, achievements, multi-language support explains the Steam user satisfaction better than just the video game quality alone. But for the effect of design features on the Steam user satisfaction does not meaningfully vary by video game quality. Although this supports that the design features are optimal compared to the baseline and interactions model, an alternated method that I used was using price as the primary predictor variable. The results had significant results compared to the analysis with the Metacritic score as the primary predictor variable.
 
-```{r anova-mScore, message = FALSE, warning = FALSE, echo=FALSE}
+```{r fig-anova-mScore, message = FALSE, warning = FALSE, echo=FALSE}
+#| fig-cap: 'Hierachial ANOVA table with Metacritic score as primary predictor.Hierachial F-test suggest that the model with design features is optimal compared to Metacritic score only and interactions.'
 # anova comparison  of metacritic score models: Metacritic Score
 m_zero <- lm(positive_review_per ~ `Metacritic score`, data = vg_df)
 m_main <- lm(positive_review_per ~ `Metacritic score` + Price + `DLC count` + Mac + Linux + Achievements + supp_lang_count + days_since_release, data = vg_df)
@@ -234,7 +239,9 @@ anova_mTable %>%
 
 In using the price as our primary predictor variable, the evaluation metrics differ with the price only and the interactions of the design features on price. This evaluation's model with the addition of interactions with price is better compared to the last model with the interactions on Metacritic score, but not by much. It is to note that the design feature models in both evaluations are the same. The RMSE between the design feature model and the model with interactions is a 0.004 difference indicating that model error in predicting on the original data is not that much different and not significant. This pattern continues for Adjusted $R^2$ value with an increase of 0.003 which suggest a slightly better fit relative to the number of predictors. What is different from these evaluation metrics compared to the evaluation on Metacritic score is that the AIC value for the interaction model is lower by approximately 17, indicating that the interaction model has a better balance between fit and complexity. These change in evaluation metrics is slightly better fitting, but not worth including the interactions on price.
 
-```{r eval-price, message = FALSE, warning = FALSE, echo=FALSE}
+```{r fig-eval-price, message = FALSE, warning = FALSE, echo=FALSE}
+#| fig-cap: 'Evaluation metrics for hierachial models with price as primary predictor.Models compared are price only, added design features, added interactions between design features and price.'
+
 # alternate model
 # get evaluation values from varying alternate models: Price
 price_zero <- eval_mod(positive_review_per ~ Price) # patient zero
@@ -250,7 +257,9 @@ kable(eval_price)
 
 Conducting the same hierarchical anova table like before on the Metacritic score-focused model, including the interactions on price with the design features is better in terms of F-value of `4.96` compared to the design feature model but it is still not significant with a p-value of `0.05` which is right at the threshold. It is also shown that the design features model is significantly better fitting than the price only model which supports that resource allocation towards design decisions explains the Steam user satisfaction better than video game price alone. Although the interaction model is slightly better than the interaction model on Metacritic score, it is still not signifcantly better enough further analyze in this study. After looking into the evaluation metrics of using video game quality and price as primary predictors, the model with just design features is optimal in both in fit and complexity, thus I will be using this in my final analysis.
 
-```{r anova-price, message = FALSE, warning = FALSE, echo=FALSE}
+```{r fig-anova-price, message = FALSE, warning = FALSE, echo=FALSE}
+#| fig-cap: 'Hierachial ANOVA table with price as primary predictor.Hierachial F-test suggest that the model with design features is optimal compared to price only and interactions.'
+
 # anova comparison  of metacritic score models: Price
 p_zero <- lm(positive_review_per ~ Price, data = vg_df)
 p_main <- lm(positive_review_per ~ `Metacritic score` + Price + `DLC count` + Mac + Linux + Achievements + supp_lang_count + days_since_release, data = vg_df)
@@ -287,34 +296,116 @@ Since there are many other design features that weren't available in the dataset
 
 ## Results 
 
+The multiple regression model with percentage of positive Steam user reviews as the response and game design features listed before as predictor variables is modeled as:
+
+$$
+\underbrace{\mathbf{Y}}_{\text{3971 x 1}} = \underbrace{\mathbf{X}}_{\text{3971 x 8}} + \underbrace{\mathbf{
+\beta}}_{\text{8 x 1}} + \underbrace{\mathbf{\epsilon}}_{\text{3971 x 1}}
+$$
+
+-   **Y** denotes the vector of the percentage of positive reviews
+
+-   **X** is the covariate matrix of the video game design features
+
+-   $\beta$ is the vector of coefficients for the video game design features
+
+-   $\epsilon$ is the vector of independent normal random variables assumed from a large sample size of `n = 3971`
+
 ```{r result-model, message = FALSE, warning = FALSE, echo=FALSE}
+#| fig-cap: 'Coefficient summary of model with video game design features.Predictor coefficient, standard error, and p-value categorization shown for intercept and design features.'
+
 design_mod <- lm(positive_review_per ~ `Metacritic score` + Price + `DLC count` + Mac + Linux + Achievements + supp_lang_count + days_since_release, data = vg_df)
 
-coef_df <- summary(design_mod)$coefficients
+design_coef <- coef(design_mod)
 
-kable(coef_df, 
-      digits = 3, 
-      caption = 'Multuple Regression  ')
+# function to format with scientific notation (matching R's summary output)
+format_coef <- function(value, se, p_value) {
+  # Format coefficient and SE with scientific notation if small
+  if (abs(value) < 0.001) {
+    b_formatted <- sprintf("%.3e", value)
+  } else {
+    b_formatted <- sprintf("%.4f", value)
+  }
+  
+  if (abs(se) < 0.001) {
+    se_formatted <- sprintf("%.3e", se)
+  } else {
+    se_formatted <- sprintf("%.4f", se)
+  }
+  
+  # Add significance stars
+  stars <- case_when(
+    p_value < 0.001 ~ "***",
+    p_value < 0.01 ~ "**",
+    p_value < 0.05 ~ "*",
+    TRUE ~ ""
+  )
+  
+  # Combine
+  sprintf("%s (%s)%s", b_formatted, se_formatted, stars)
+}
 
-
+summary(design_mod)$coefficients %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column("Predictor") %>%
+  mutate(
+    Predictor = case_when(
+      Predictor == "(Intercept)" ~ "Intercept",
+      Predictor == "`Metacritic score`" ~ "Metacritic Score",
+      Predictor == "`DLC count`" ~ "DLC Count",
+      Predictor == "Mac" ~ "Mac Support",
+      Predictor == "Linux" ~ "Linux Support",
+      Predictor == "Achievements" ~ "Achievement Count",
+      Predictor == "supp_lang_count" ~ "Language Count",
+      Predictor == "days_since_release" ~ "Days Since Release",
+      TRUE ~ Predictor
+    ),
+    `Coefficient (SE)` = mapply(format_coef, Estimate, `Std. Error`, `Pr(>|t|)`)
+  ) %>%
+  select(Predictor, `Coefficient (SE)`) %>%
+  kable(
+    align = c('l', 'r'),
+    booktabs = TRUE
+  ) %>%
+  kable_styling(
+    latex_options = c("striped", "HOLD_position", "scaled_down"),
+    full_width = FALSE,
+    font_size = 10,
+  ) %>%
+  footnote(
+    general = paste0(
+      "Standard errors in parentheses. *** p < .001, ** p < .01, * p < .05. ",
+      "N = ", nobs(design_mod), ", ",
+      "Residual SE = ", sprintf("%.4f", summary(design_mod)$sigma), ", ",
+      "Adj. R² = ", sprintf("%.4f", summary(design_mod)$adj.r.squared), "."
+    ),
+    general_title = "Note.",
+    footnote_as_chunk = TRUE,
+    threeparttable = TRUE
+  )
 ```
 
-```{r resid-hist-qq, message = FALSE, warning = FALSE, echo=FALSE}
-fit_full2 <- lm(positive_review_per ~ `Metacritic score` * (Price + `DLC count` + Mac + Linux + Achievements + supp_lang_count) + days_since_release, data = vg_df)
-full2_resid <- as.data.frame(fit_full2$residuals)
-colnames(full2_resid) <- 'residuals'
-full2_resid_hist <- ggplot(data = full2_resid, aes(x = residuals)) +
-      geom_histogram(fill = "steelblue", color = "black") +
-      labs(title = "Histogram of Residuals(Full Model)", x = "Residuals", y = "Frequency")
+The summary table of the model with design features shows the coefficients, standard errors, and p-value categorization for the each predictor. To interpret Metacritic score for example, for an increase in score, the expected positive review percentage increases for `` r round(design_coef["`Metacritic score`"], 3) `` assuming the other predictors are constant. The game design features in this model that have a statistically significant relationship with positive review percentage based on p-value less than 0.05 are Metacritic score, Mac and Linux support, and not necessarily a design feature but a post-launch feature of a video game's age since release. This indicates that overall video game quality score, cross-platform compatibility, and game longevity are meaningfully contribute to explaining the Steam user satisfaction for a given video game in their cateloge. But because the Adjusted $R^2$ value is `r round(summary(design_mod)$adj.r.squared, 3)` which is considerably low and suggest that the model with design features explains a small percentage of the total variance.
 
-full2_qq <- ggplot(full2_resid, aes(sample = residuals)) +
+To validate our assumption, the histogram of the residuals and the QQ-plot of the model with design features is shown
+
+```{r fig-hist-qq, message = FALSE, warning = FALSE, echo=FALSE}
+#| fig-cap: 'Histogram of residuals with an approximately normal distribution and QQ-plot that mostly follows the line of best fit suggesting the errors are normally distributed.'
+
+design_resid <- as.data.frame(design_mod$residuals)
+colnames(design_resid) <- 'residuals'
+design_resid_hist <- ggplot(data = design_resid, aes(x = residuals)) +
+      geom_histogram(fill = "steelblue", color = "black") +
+      labs(title = "Histogram of Residuals(Design Features Model)", x = "Residuals", y = "Frequency")
+
+design_qq <- ggplot(design_resid, aes(sample = residuals)) +
       stat_qq() +
       stat_qq_line() + 
   labs(x = "Theoretical Quantiles", y = "Sample Quantiles",
                  title = "Q-Q Plot(Full Model)") +
             theme(plot.title = element_text(hjust = 0.5))
 
-plot_grid(zero2_resid_hist, full2_qq, ncol = 1)
+plot_grid(design_resid_hist, design_qq, ncol = 1)
 ```
 
 ## Discussion

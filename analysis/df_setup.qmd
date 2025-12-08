@@ -1,0 +1,115 @@
+---
+title: "df_setup"
+format: pdf
+---
+
+```{r}
+# install libraries
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(hms)
+library(usethis)
+```
+
+```{r}
+steam_dataset <- read_csv("games.csv")
+dim(vg_dataset)
+head(vg_dataset, n = 100)
+```
+
+```{r}
+# organize column names
+colnames(vg_dataset) <- c('app_id', 'Name', 'Release date', 'Estimated owners', 'Peak CCU',
+       'Required age', 'Price', 'Discount', 'DLC count', 'About the game',
+       'Supported languages', 'Full audio languages', 'Reviews',
+       'Header image', 'Website', 'Support url', 'Support email', 'Windows',
+       'Mac', 'Linux', 'Metacritic score', 'Metacritic url', 'User score',
+       'Positive', 'Negative', 'Score rank', 'Achievements', 'Recommendations',
+       'Notes', 'Average playtime forever', 'Average playtime two weeks',
+       'Median playtime forever', 'Median playtime two weeks', 'Developers',
+       'Publishers', 'Categories', 'Genres', 'Tags', 'Screenshots')
+
+# ordered estimated owners
+est_own_order <- c('0 - 20000', '20000 - 50000', '50000 - 100000', '100000 - 200000', 
+  '200000 - 500000', '500000 - 1000000', '1000000 - 2000000', 
+  '2000000 - 5000000', '5000000 - 10000000', '10000000 - 20000000', 
+  '20000000 - 50000000', '50000000 - 100000000', '100000000 - 200000000')
+
+prop_date <- as.Date('2025-11-19') # day of paper proposal
+
+# select needed columns and make new ones
+vg_df <- vg_dataset %>%
+  filter(`Metacritic score` > 0 & `Estimated owners` != '0 - 0' & (Positive + Negative) > 0) %>%
+  select('Name', 'Release date', 'Estimated owners', 'Price', 'DLC count', 'Supported languages', 'Windows', 'Mac', 'Linux', 'Metacritic score', 'Positive', 'Negative', 'Achievements', 'Recommendations', 'Average playtime forever', 'Median playtime forever', 'Developers', 'Publishers') %>%
+  mutate(total_revs = Positive + Negative, 
+         positive_review_per = Positive/total_revs, 
+         Windows = as.numeric(Windows), 
+         Mac = as.numeric(Mac), 
+         Linux = as.numeric(Linux), 
+         `Estimated owners` = fct_relevel(`Estimated owners`, est_own_order), 
+         supp_lang_count = str_count(vg_df$`Supported languages`, ",") + 1,
+         Publishers = replace_na(Publishers, 'Unknown'))
+
+# recode estimated owners
+vg_df$`Estimated owners` <- recode(vg_df$`Estimated owners`,
+                                   '0 - 20000' = '0 - 20K',
+                                   '20000 - 50000' = '20K - 50K',
+                                   '50000 - 100000' = '50K - 100K',
+                                   '100000 - 200000' = '100K - 200K',
+                                   '200000 - 500000' = '200K - 500K',
+                                   '500000 - 1000000' = '500K - 1M',
+                                   '1000000 - 2000000' = '1M - 2M',
+                                   '2000000 - 5000000' = '2M - 5M',
+                                   '5000000 - 10000000' = '5M - 10M',
+                                   '10000000 - 20000000' = '10M - 20M',
+                                   '20000000 - 50000000' = '20M - 50M',
+                                   '50000000 - 100000000' = '50M - 100M',
+                                   '100000000 - 200000000' = '100M - 200M')
+
+
+# days_since_release = as.numeric(difftime(prop_date, as.Date(vg_df$`Release date`, tryFormats = c('%b %d, %Y', '%b %Y')), units = 'days')),
+# deal with different date formats
+has_comma <- grepl(",", vg_df$`Release date`)
+
+vg_df$release_date <- as.Date(NA)
+
+# parse format: "Nov 11, 2014"
+vg_df$release_date[has_comma] <- as.Date(
+  vg_df$`Release date`[has_comma],
+  format = '%b %d, %Y'
+)
+
+# parse format: "Oct 2010" → "Oct 1, 2010"
+no_comma_dates <- paste0(vg_df$`Release date`[!has_comma], " 1")
+vg_df$release_date[!has_comma] <- as.Date(
+  no_comma_dates,
+  format = '%b %Y %d'
+)
+
+# Calculate days since release
+vg_df$days_since_release <- as.numeric(
+  difftime(prop_date, vg_df$release_date, units = 'days')
+)
+
+
+head(vg_df, n = 100)
+dim(vg_df)
+```
+
+```{r}
+min_year <- min(as.numeric(format(vg_df$release_date, "%Y")))
+```
+
+```{r}
+# write into new csv to use in paper
+write_csv(vg_df, 'vg.csv')
+```
+
+```{r}
+# make a sample df
+vg_samp <- vg_df %>%
+  head(n = 100)
+
+write_csv(vg_samp, 'vg_samp.csv')
+```
