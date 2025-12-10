@@ -5,7 +5,8 @@ thanks: "Project repository available at: [https://github.com/antruong1101/MATH2
 editor: visual
 date: today
 date-format: long
-abstract: "abstract go in  dis jawn "
+abstract: "This study examines whether resource-intensive game design features predict user satisfaction on Steam beyond game quality alone. From around 4,000 games(1997-2025), I was able to show that design features signficantly improve predictions compared to Metacritic score alone(F = 18.22, p < 0.01). When including an interaction with game quality and price, these models were not significant(p = 0.05) compared to the design model, suggesting the design features apply universally. The key significant features acquired include cross-platform compatibility(Mac/Linux Support) and game longevity(days since release). "
+bibliography: "paper2.bib"
 format: 
   pdf:
     fig-pos: "H"
@@ -29,7 +30,7 @@ The structure of this paper consist of the **Data** sections that covers the dat
 
 ## Data
 
-The dataset used in this study comes from the open-source data science platform HuggingFace from the user FronkonGames that consists of over 110,000 published games on Steam. Collecting the necessary data included shifting column names, column factoring, filtering for games that had any number of reviews, had more than 0 owners(not publicly released games), and those who had a Metacritic score. After cleaning the data, I was able to work with around 4000 titles from 1997 to 2025 and 23 predictor variables. An alternative dataset that have similar predictors but less titles is SteamDB extraction from Jon Garrastatxu which has around 400 titles.
+The dataset used in this study comes from the open-source data science platform HuggingFace from the user FronkonGames that consists of over 110,000 published games on Steam[@fronkongamessteam-games-dataset_2025]. Collecting the necessary data included shifting column names, column factoring, filtering for games that had any number of reviews, had more than 0 owners(not publicly released games), and those who had a Metacritic score. After cleaning the data, I was able to work with around 4000 titles from 1997 to 2025 and 23 predictor variables. An alternative dataset that have similar predictors but less titles is SteamDB extraction from Jon Garrastatxu which has around 400 titles[@Garrastatxu_2025].
 
 Predictor variables that are most relevant in my analysis: Metacritic score which is a weight average of ratings from professional critics ranging from 0-100. Price which is the market price of the game title. The count of DLC, achievement goals, supported languages for a given title. Indicator variables of whether the game is support on operating systems Mac or Linux. The days since its release date from the date of November 19th, 2025 when I started on this paper. For the response variable, I will be using the percentage of positive reviews which is calculated from dividing the number of positive reviews with its sum with negative reviews.
 
@@ -37,15 +38,12 @@ Predictor variables that are most relevant in my analysis: Metacritic score whic
 # install libraries
 library(tidyverse)
 library(dplyr)
-library(forcats)
-library(hms)
 library(usethis)
 library(stats)
 library(knitr)
 library(cowplot)
 library(broom)
-library(data.table)
-library(rstatix)
+#library(data.table)
 library(kableExtra)
 use_git_config(user.name = "antruong1101", user.email = "an.truong8@gmail.com")
 ```
@@ -155,7 +153,7 @@ combined_plot
 
 ## Methods
 
-The statistical methods analyses done in this paper using the R programming language.
+The statistical methods analyses done in this paper using the R programming language[@R_prog_lang]. The libraries used in this analysis include: tidyverse[@R_lib_tidyverse], knitr[@R_lib_knitr], cowplot[@R_lib_cowplot], and kableExtra[@R_lib_kabelExtra].
 
 ```{r evaluation-function, message = FALSE, warning = FALSE, echo=FALSE}
 # evaluation function
@@ -182,7 +180,7 @@ eval_mod <- function(formula) {
 }
 ```
 
-To better understand whether or not the listed game features are need in order to have positive user satisfaction on Steam, I compared three regression models which consist of the zero model with Metacritic score by itself, the full model with the listed features, and the model with features and interactions with Metacritic score. From these models, I calculated the RMSE, Adjusted $R^2$ value, AIC, and F-statistic values to compare model significance and complexity that is shown below. The RMSE for the full model is lower compared to the zero model indicating a better fit but when the interactions are added the RMSE doesn't decrease as much. Similar patterns are shared between the Adjusted $R^2$ value where the full model with interactions is slightly better than the full model with no interactions. AIC values shows that including the interactions with the full model actually increases it suggesting that it has too many parameters. Comparing the full model with the zero by AIC values show that the full model has a better balance of fit and complexity than it. As for the F-statistic, it is to note that the model significance is tested between an intercept only model, thus the zero model has the greatest model. Although a higher F-statistic hints better overall model significance, it doesn't mean the interaction model is worse. Thus it is better to compare the models with an ANOVA table instead of the F-statistic.
+To better understand whether or not the listed game features are need in order to have positive user satisfaction on Steam, I compared three regression models which consist of the zero model with Metacritic score by itself, the full model with the listed features, and the model with features and interactions with Metacritic score. From these models, I calculated the RMSE, Adjusted $R^2$ value, AIC, and F-statistic values to compare model significance and complexity that is shown in [@fig-eval-mScore]. The RMSE for the full model is lower compared to the zero model indicating a better fit but when the interactions are added the RMSE doesn't decrease as much. Similar patterns are shared between the Adjusted $R^2$ value where the full model with interactions is slightly better than the full model with no interactions. AIC values shows that including the interactions with the full model actually increases it suggesting that it has too many parameters. Comparing the full model with the zero by AIC values show that the full model has a better balance of fit and complexity than it. As for the F-statistic, it is to note that the model significance is tested between an intercept only model, thus the zero model has the greatest model. Although a higher F-statistic hints better overall model significance, it doesn't mean the interaction model is worse. Thus it is better to compare the models with an ANOVA table instead of the F-statistic as seen in hierachial regression[@noauthor_hierarchical_nodate].
 
 ```{r fig-eval-mScore, message = FALSE, warning = FALSE, echo=FALSE}
 #| fig-cap: 'Evaluation metrics for hierachial models with Metacritic score as primary predictor.Models compared are Metacritic score only, added design features, added interactions between design features and Metacritic score.'
@@ -199,7 +197,7 @@ colnames(eval_mScore) <- c('Evaluation  Metrics', 'Metacritic only', 'Design Fea
 kable(eval_mScore)
 ```
 
-From using a nested anova table to conduct a hierarchical F-test shown below, the comparison between the three models from the evaluation metrics is more interpret-able. Including the game design features is better than the Metacritic score only model with a F-value of `18.22` and when including the interactions, it isn't much better fitting than the game design model based on the F-value of `1.67`. It is also to note that when the anova tables to compare the models, multiple hypotheses test are carried out thus increasing the probability of Type I error. These results also rely on the assumption of having normal errors or a sufficient sample size which is true in our case with approximately 4000 samples.
+From using a nested anova table to conduct a hierarchical F-test shown in [@fig-anova-mScore], the comparison between the three models from the evaluation metrics is more interpret-able. Including the game design features is better than the Metacritic score only model with a F-value of `18.22` and when including the interactions, it isn't much better fitting than the game design model based on the F-value of `1.67`. It is also to note that when the anova tables to compare the models, multiple hypotheses test are carried out thus increasing the probability of Type I error. These results also rely on the assumption of having normal errors or a sufficient sample size which is true in our case with approximately 4000 samples.
 
 Adding design features significantly improved mode fit compared to the Metacritic score only model. This validates that resource allocation towards design decisions including pricing, DLC count, platform support, achievements, multi-language support explains the Steam user satisfaction better than just the video game quality alone. But for the effect of design features on the Steam user satisfaction does not meaningfully vary by video game quality. Although this supports that the design features are optimal compared to the baseline and interactions model, an alternated method that I used was using price as the primary predictor variable. The results had significant results compared to the analysis with the Metacritic score as the primary predictor variable.
 
@@ -237,7 +235,7 @@ anova_mTable %>%
            general_title = "Note.")
 ```
 
-In using the price as our primary predictor variable, the evaluation metrics differ with the price only and the interactions of the design features on price. This evaluation's model with the addition of interactions with price is better compared to the last model with the interactions on Metacritic score, but not by much. It is to note that the design feature models in both evaluations are the same. The RMSE between the design feature model and the model with interactions is a 0.004 difference indicating that model error in predicting on the original data is not that much different and not significant. This pattern continues for Adjusted $R^2$ value with an increase of 0.003 which suggest a slightly better fit relative to the number of predictors. What is different from these evaluation metrics compared to the evaluation on Metacritic score is that the AIC value for the interaction model is lower by approximately 17, indicating that the interaction model has a better balance between fit and complexity. These change in evaluation metrics is slightly better fitting, but not worth including the interactions on price.
+In using the price as our primary predictor variable, the evaluation metrics differ with the price only and the interactions of the design features on price in [@fig-eval-price]. This evaluation's model with the addition of interactions with price is better compared to the last model with the interactions on Metacritic score, but not by much. It is to note that the design feature models in both evaluations are the same. The RMSE between the design feature model and the model with interactions is a `0.004` difference indicating that model error in predicting on the original data is not that much different and not significant. This pattern continues for Adjusted $R^2$ value with an increase of `0.003` which suggest a slightly better fit relative to the number of predictors. What is different from these evaluation metrics compared to the evaluation on Metacritic score is that the AIC value for the interaction model is lower by approximately 17, indicating that the interaction model has a better balance between fit and complexity. These change in evaluation metrics is slightly better fitting, but not worth including the interactions on price.
 
 ```{r fig-eval-price, message = FALSE, warning = FALSE, echo=FALSE}
 #| fig-cap: 'Evaluation metrics for hierachial models with price as primary predictor.Models compared are price only, added design features, added interactions between design features and price.'
@@ -255,7 +253,7 @@ colnames(eval_price) <- c('Evaluation  Metrics', 'Price only', 'Design Features'
 kable(eval_price)
 ```
 
-Conducting the same hierarchical anova table like before on the Metacritic score-focused model, including the interactions on price with the design features is better in terms of F-value of `4.96` compared to the design feature model but it is still not significant with a p-value of `0.05` which is right at the threshold. It is also shown that the design features model is significantly better fitting than the price only model which supports that resource allocation towards design decisions explains the Steam user satisfaction better than video game price alone. Although the interaction model is slightly better than the interaction model on Metacritic score, it is still not signifcantly better enough further analyze in this study. After looking into the evaluation metrics of using video game quality and price as primary predictors, the model with just design features is optimal in both in fit and complexity, thus I will be using this in my final analysis.
+Conducting the same hierarchical anova table like before on the Metacritic score-focused model, including the interactions on price with the design features is better in terms of F-value of `4.96` compared to the design feature model but it is still not significant with a p-value of `0.05` which is right at the threshold in [@fig-anova-price]. It is also shown that the design features model is significantly better fitting than the price only model which supports that resource allocation towards design decisions explains the Steam user satisfaction better than video game price alone. Although the interaction model is slightly better than the interaction model on Metacritic score, it is still not signifcantly better enough further analyze in this study. After looking into the evaluation metrics of using video game quality and price as primary predictors, the model with just design features is optimal in both in fit and complexity, thus I will be using this in my final analysis.
 
 ```{r fig-anova-price, message = FALSE, warning = FALSE, echo=FALSE}
 #| fig-cap: 'Hierachial ANOVA table with price as primary predictor.Hierachial F-test suggest that the model with design features is optimal compared to price only and interactions.'
@@ -292,15 +290,15 @@ anova_pTable %>%
            general_title = "Note.")
 ```
 
-Since there are many other design features that weren't available in the dataset , I believe that it is still important to name some that are notable and relevant in modern games such as having multiplayer, anti-cheat software, cross-platform compatibility, and micro-transactions, some of which are present in the alternate data source from Zenodo. The analyses I have done is on a subset of the many game design features that could effect Steam user satisfaction.
+Since there are many other design features that weren't available in the dataset , I believe that it is still important to name some that are notable and relevant in modern games such as having multiplayer, anti-cheat software, cross-platform compatibility, and micro-transactions, some of which are present in the alternate data source from Zenodo[@Garrastatxu_2025]. The analyses I have done is on a subset of the many game design features that could effect Steam user satisfaction.
 
-## Results 
+## Results
 
 The multiple regression model with percentage of positive Steam user reviews as the response and game design features listed before as predictor variables is modeled as:
 
 $$
-\underbrace{\mathbf{Y}}_{\text{3971 x 1}} = \underbrace{\mathbf{X}}_{\text{3971 x 8}} + \underbrace{\mathbf{
-\beta}}_{\text{8 x 1}} + \underbrace{\mathbf{\epsilon}}_{\text{3971 x 1}}
+\underbrace{\mathbf{Y}}_{\text{3971 x 1}} = \underbrace{\mathbf{X}}_{\text{3971 x 8}} + \underbrace{
+\beta}_{\text{8 x 1}} + \underbrace{\epsilon}_{\text{3971 x 1}}
 $$
 
 -   **Y** denotes the vector of the percentage of positive reviews
@@ -311,7 +309,7 @@ $$
 
 -   $\epsilon$ is the vector of independent normal random variables assumed from a large sample size of `n = 3971`
 
-```{r result-model, message = FALSE, warning = FALSE, echo=FALSE}
+```{r fig-result-model, message = FALSE, warning = FALSE, echo=FALSE}
 #| fig-cap: 'Coefficient summary of model with video game design features.Predictor coefficient, standard error, and p-value categorization shown for intercept and design features.'
 
 design_mod <- lm(positive_review_per ~ `Metacritic score` + Price + `DLC count` + Mac + Linux + Achievements + supp_lang_count + days_since_release, data = vg_df)
@@ -385,29 +383,36 @@ summary(design_mod)$coefficients %>%
   )
 ```
 
-The summary table of the model with design features shows the coefficients, standard errors, and p-value categorization for the each predictor. To interpret Metacritic score for example, for an increase in score, the expected positive review percentage increases for `` r round(design_coef["`Metacritic score`"], 3) `` assuming the other predictors are constant. The game design features in this model that have a statistically significant relationship with positive review percentage based on p-value less than 0.05 are Metacritic score, Mac and Linux support, and not necessarily a design feature but a post-launch feature of a video game's age since release. This indicates that overall video game quality score, cross-platform compatibility, and game longevity are meaningfully contribute to explaining the Steam user satisfaction for a given video game in their cateloge. But because the Adjusted $R^2$ value is `r round(summary(design_mod)$adj.r.squared, 3)` which is considerably low and suggest that the model with design features explains a small percentage of the total variance.
+The summary table of the model with design features shows the coefficients in [@fig-result-model] including standard errors and p-value categorization for the each predictor. To interpret Metacritic score for example, for an increase in score, the expected positive review percentage increases for `0.008` assuming the other predictors are constant. The game design features in this model that have a statistically significant relationship with positive review percentage based on p-value less than 0.05 are Metacritic score, Mac and Linux support, and not necessarily a design feature but a post-launch feature of a video game's age since release. This indicates that overall video game quality score, cross-platform compatibility, and game longevity are meaningfully contribute to explaining the Steam user satisfaction for a given video game in their catelogue. But because the Adjusted $R^2$ value is `r round(summary(design_mod)$adj.r.squared, 3)` which is considerably low and suggest that the model with design features explains a small percentage of the total variance.
 
-To validate our assumption, the histogram of the residuals and the QQ-plot of the model with design features is shown
+To validate our assumption, the histogram of the residuals and the QQ-plot of the model with design features is shown in [@fig-hist-qq]. The residual plot shows a lack of random scatter and a cluster from the positive review percentages of 0.5 - 1 which suggest non-linearity and another model is needed. From the histogram, the distribution of errors is approximately normal and the QQ-plot follows the line of best fit.
 
 ```{r fig-hist-qq, message = FALSE, warning = FALSE, echo=FALSE}
-#| fig-cap: 'Histogram of residuals with an approximately normal distribution and QQ-plot that mostly follows the line of best fit suggesting the errors are normally distributed.'
+#| fig-cap: 'Residual plot between residuals and predicted percentage of positive reviews shows clusters in mostly positve reviews. Histogram of residuals with an approximately normal distribution and QQ-plot that mostly follows the line of best fit suggesting the errors are normally distributed.'
+
+design_residPlot <- ggplot(design_mod, aes(x = .fitted, y = .resid)) +
+  geom_jitter(alpha = 0.25, width = 0.2) +
+  geom_hline(yintercept = 0) + 
+  labs(title = 'Residuals vs. Fitted Plot', x = 'Predicted Positive Steam Reviews(%)', y = 'Residuals')
 
 design_resid <- as.data.frame(design_mod$residuals)
 colnames(design_resid) <- 'residuals'
 design_resid_hist <- ggplot(data = design_resid, aes(x = residuals)) +
       geom_histogram(fill = "steelblue", color = "black") +
-      labs(title = "Histogram of Residuals(Design Features Model)", x = "Residuals", y = "Frequency")
+      labs(title = "Histogram of Residuals", x = "Residuals", y = "Frequency")
 
 design_qq <- ggplot(design_resid, aes(sample = residuals)) +
       stat_qq() +
       stat_qq_line() + 
   labs(x = "Theoretical Quantiles", y = "Sample Quantiles",
-                 title = "Q-Q Plot(Full Model)") +
+                 title = "Q-Q Plot") +
             theme(plot.title = element_text(hjust = 0.5))
 
-plot_grid(design_resid_hist, design_qq, ncol = 1)
+plot_grid(design_residPlot, design_resid_hist, design_qq,nrow = 2, ncol = 2, scale = 1)
 ```
 
 ## Discussion
+
+In this paper, I conducted a multiple linear regression model analysis on the percentage of positive reviews for the video games on Steam using statistical methods such as a hierarchical F-test and compared them by their evaluation metrics on their fit and complexity(e.g. RMSE, AIC, Adjusted $R^2$, F-value). From comparing two hierarchical structures with primary predictors on video game Metacritic score and price. The model that was optimal in fit and complexity is the model with the design features with no interactions between the primary predictor. In looking into this model, the most statistically significant predictors in explaining the percentage of positive reviews is Metacritic score, Cross-compatibility(e.g. Mac, Linux), and days since release. This addresses the research question regarding indie developers not needing to have resource-intensive feature decisions such as DLC, achievements, and language support. There is are a plethora of design decisions that greatly influence Steam user satisfaction that are not used in this study's dataset, this introduces potential weakness in this analyses. For future improvements including more features through other video game related datasets or doing a more thorough scrape of a Steam database for this study.
 
 ## References
