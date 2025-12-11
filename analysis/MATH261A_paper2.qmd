@@ -316,7 +316,7 @@ Where:
 
 -   Days Since Release = days since release (as of Nov 19, 2025)
 
--   ε_i \~ N(0, σ²) assumed by large sample size `(n = 3,971)`
+-   $\epsilon_i$ \~ N(0, $\sigma^2$) assumed by large sample size `(n = 3,971)`
 
 ```{r fig-result-model, message = FALSE, warning = FALSE, echo=FALSE}
 #| fig-cap: 'Coefficient summary of model with video game design features.Predictor coefficient, standard error, and p-value categorization shown for intercept and design features. Cross-platform support(Mac/Linux) show strongest effects beyond game quality.'
